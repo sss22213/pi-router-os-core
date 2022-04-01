@@ -3,7 +3,7 @@
 This repository contains network interface information by ioctl, netdevice(7), wireless.h.
 
 ## Test environment:
-1. Raspberry pi x64
+1. Raspberry pi arm64
 2. pi-router-os [pi-router-os](https://github.com/sss22213/pi-router-os) (Modify from OpenWRT)
 
 ## Test program:
