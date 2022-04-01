@@ -2,7 +2,7 @@ FINDINCFOLDER := $(addprefix -I,$(wildcard ./*/inc))
 FINDSRCFOLDER := $(wildcard */src/*.c)
 OBJ := $(patsubst %.c,%.o,$(FINDSRCFOLDER))
 CC := gcc
-CFLAGS := -g -Wall -std=gnu11 $(FINDINCFOLDER) -liw
+CFLAGS := -g -Wall -std=gnu11 $(FINDINCFOLDER)
 BUILDFOLDER := build
 BUILDOBJ := $(wildcard $(BUILDFOLDER)/*.o)
 
