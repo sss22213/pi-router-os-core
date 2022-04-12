@@ -109,6 +109,7 @@ import struct
 import array
 import fcntl
 import sys
+import os
 
 SIOCGIFNAME = 0x8910		# get iface name
 SIOCSIFLINK = 0x8911		# get iface channel
@@ -236,7 +237,7 @@ class netdevice:
             mac_addr += ":"
 
         return mac_addr[:-1]
-
+        
     def close(self):
         self.fd.close()
 
