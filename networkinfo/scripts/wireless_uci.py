@@ -38,4 +38,4 @@ class wireless_uci:
 if __name__ == '__main__':
     wire_uci = wireless_uci()
     #print(wire_uci.get_wireless_mode(2))
-    print(wire_uci.set_wireless_connect_to_ap('7734_New','1qazXSW2!','psk2'))
+    print(wire_uci.set_wireless_connect_to_ap('test','2qaz2wsx3d','psk2'))
