@@ -242,9 +242,15 @@ class netdevice:
         self.fd.close()
 
 if __name__ == '__main__':
+    process = os.popen('cat /proc/cpuinfo')
+    preprocessed = process.read().split('\n')
+    print(preprocessed)
+    process.close()
+    '''
     net = netdevice()
     print(net.get_interface_name())
     print(net.get_ip_addr('wlan2'))
     print(net.get_netmask('wlan2'))
     print(net.get_mac_address('wlan2'))
     net.close()
+    '''

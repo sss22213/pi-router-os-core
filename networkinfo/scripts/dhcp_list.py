@@ -22,4 +22,4 @@ class dhcp_list:
 
 if __name__ == '__main__':
     d_list = dhcp_list()
-    print(d_list.get_dhcp_list()[0].timestamp)
+    print(d_list.get_dhcp_list())
