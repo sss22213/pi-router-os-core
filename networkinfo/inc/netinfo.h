@@ -17,6 +17,7 @@
 #define IFACE_NAME_LENGTH   100
 #define IFACE_MAXIMUN_LENGTH    100
 #define MAC_ADDRESS_MAXIMUM_LENGTH 20
+#define SCAN_BITRATE_MAXIMUM_LENGTH 25
 
 typedef enum {
    NETINFO_INTERFACE_TYPE_ENTERNET,
@@ -44,6 +45,9 @@ struct _netinfo_wireless {
     int tx_power; // dBm
     int quility; // percent
     char ap_mac_address[MAC_ADDRESS_MAXIMUM_LENGTH];
+    // For wireless scanning
+    int bit_rate_scanning[SCAN_BITRATE_MAXIMUM_LENGTH];
+    int bit_rate_len;
 };
 
 struct _netinfo_interface {
@@ -57,6 +61,7 @@ struct _netinfo_interface {
     struct _netinfo_wireless netinfo_wireless;
 };
 
+
 bool netinfo_get_base_config(struct _netinfo_interface*);
 
 bool netinfo_list_all_interface_name(char (*)[IFACE_NAME_LENGTH]);
@@ -64,5 +69,7 @@ bool netinfo_list_all_interface_name(char (*)[IFACE_NAME_LENGTH]);
 bool netinfo_get_wireless_base_config(const char *, struct _netinfo_interface*);
 
 uint8_t netinfo_get_interface_count(void);
+
+void ssid_scanning(void);
 
 #endif

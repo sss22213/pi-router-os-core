@@ -303,3 +303,46 @@ bool netinfo_get_base_config(struct _netinfo_interface *iface)
 
     return true;
 }
+
+void ssid_scanning()
+{
+    int fd = 0;
+
+    int ret = 0;
+
+    uint8_t buf[IW_SCAN_MAX_DATA*10] = {0};
+
+    struct iwreq iw_req;
+
+    struct iw_scan_req iwscan_req;
+    memset(&iwscan_req, 0, sizeof(struct iw_scan_req));
+
+    iw_req.u.data.pointer = (caddr_t)&iwscan_req;
+    iw_req.u.data.length = sizeof(iwscan_req);
+
+    // Initial scan
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    strncpy(iw_req.ifr_name, "wlan2", IFNAMSIZ);
+
+    ret = ioctl(fd, SIOCSIWSCAN, &iw_req);
+
+    printf("%d\n", ret);
+
+    sleep(5);
+    iw_req.u.data.pointer = buf;
+	iw_req.u.data.flags = 0;
+	iw_req.u.data.length = sizeof(uint8_t) * IW_SCAN_MAX_DATA * 10;
+    strncpy(iw_req.ifr_name, "wlan2", IFNAMSIZ);
+    
+    ret = ioctl(fd, SIOCGIWSCAN, &iw_req);
+
+    /*
+    for(int i = 1; i < iw_req.u.data.length; i++)
+	    printf(":%02X", buf[i]);
+    */
+
+    printf("%d\n", ret);
+
+    close(fd);
+}

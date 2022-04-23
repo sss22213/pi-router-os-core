@@ -1,34 +1,28 @@
 #include "netinfo.h"
+#include "wireless_scan.h"
 
 int main(int argc, char **argv)
 {
-    struct _netinfo_interface iface[100];
-    
-    int interface_count = netinfo_get_interface_count();
-    
-    printf("*****************************************************\n");
+    struct _wireless_scan_netinfo wireless_scan_netinfo;
 
-    netinfo_get_base_config(iface);
-    for (int idx = 0; idx < interface_count; idx++) {
-        printf("Interface name: %s\n", iface[idx].iface_name);
-        printf("IP: %s\n", iface[idx].ipv4);
-        printf("Netmask: %s\n", iface[idx].netmask);
-        printf("MAC address: %s\n", iface[idx].mac_address);
+    struct _netinfo_wireless *ptr_netinfo_interface = NULL;
 
-        // If interface is wireless, print connection information.
-        if (iface[idx].net_iface_type == NETINFO_INTERFACE_TYPE_WIRELESS) {
-            printf("ESSID: %s\n", iface[idx].netinfo_wireless.essid);
-            printf("AP MAC address: %s\n", iface[idx].netinfo_wireless.ap_mac_address);
-            printf("Bit rate: %d bps\n", iface[idx].netinfo_wireless.bit_rate);
-            printf("Channel: %d\n", iface[idx].netinfo_wireless.channel);
-            printf("Frequency: %e hz\n", iface[idx].netinfo_wireless.frequency);
-            printf("Quility: %d\n", iface[idx].netinfo_wireless.quility);
-            printf("Txpower: %d dBM\n", iface[idx].netinfo_wireless.tx_power);
+    wireless_get_scan_result(&wireless_scan_netinfo, "wlan2");
+    
+    ptr_netinfo_interface = wireless_scan_netinfo.ptr_netinfo_interface_start;
+    while (ptr_netinfo_interface < wireless_scan_netinfo.ptr_netinfo_interface_end) {
+        printf("ESSID: %s, AP_MAC_ADDRESS: %s, FREQENCY: %2.4e, CHANNEL: %d, ", ptr_netinfo_interface->essid, \
+                                                                                ptr_netinfo_interface->ap_mac_address, \
+                                                                                ptr_netinfo_interface->frequency,  \
+                                                                                ptr_netinfo_interface->channel);
+
+        printf("BITRATE:");
+        for (int bitrate_idx = 0; bitrate_idx < ptr_netinfo_interface->bit_rate_len; bitrate_idx++) {
+            printf("%d,", ptr_netinfo_interface->bit_rate_scanning[bitrate_idx]);
         }
-        printf("\n");
+        
+        printf("\n");                                                                               
+        ptr_netinfo_interface++;
     }
-
-    printf("*****************************************************\n");
-
     return 0;
 }
