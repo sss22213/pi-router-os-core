@@ -20,6 +20,12 @@
 #define MAXIMUM_WIRELSS_SCAN_EVENT_LENGTH	4096
 #define MAXIMUM_WIRLESS_CELL	100
 
+// IE
+#define WPA_OTHER_TYPE 0xDD
+#define WPA2_TYPE 0x30
+#define WPA_OUI {0x00, 0x50, 0xF2}
+#define WPA2_OUI {0x00, 0x0F, 0xAC}
+
 struct _stream_package {
     struct iw_ioctl_description *iwioctl_description;
     union iwreq_data iwreq;

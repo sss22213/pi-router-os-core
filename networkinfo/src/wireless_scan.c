@@ -1,5 +1,62 @@
 #include "wireless_scan.h"
 
+static inline bool _gen_encrypt_decode(struct _netinfo_wireless *netinfo_wireless, char *ie_stream, int max_len)
+{
+    // Find WPA, WPA2, UNKNOWN
+    int len = 0;
+
+    const uint8_t wpa1_oui[3] = WPA_OUI;
+
+    const uint8_t wpa2_oui[3] = WPA2_OUI;
+
+    uint8_t oui[3] = {0};
+
+    WIRELESS_SCAN_AP_ENCRYPT encrypt = WIRELESS_SCAN_AP_ENCRPTY_UNKNOWN;
+    
+    char *ptr_ie = ie_stream;
+
+    int ie_len = 0;
+
+    // Find WPA,WPA2 type
+    while (*ptr_ie != WPA_OTHER_TYPE && *ptr_ie != WPA2_TYPE && len < max_len) {
+        ptr_ie++;
+    }
+    
+    // Not found encrypt
+    if (len >= max_len) {
+        return false;
+    }
+
+    //printf("%02X\n", *ptr_ie);
+
+    ie_len = *(ptr_ie+1);
+
+    switch (*ptr_ie) {
+    case WPA2_TYPE:
+        encrypt = WIRELESS_SCAN_AP_ENCRPTY_WPA2;
+        memcpy(oui, wpa2_oui, sizeof(wpa2_oui[0])*3);
+        netinfo_wireless->wireless_scan_ap_encrpyt = WIRELESS_SCAN_AP_ENCRPTY_WPA2;
+    break;
+    case WPA_OTHER_TYPE:
+        // Find OUI
+        if (ie_len < 8 || memcmp(ptr_ie+1, wpa1_oui, sizeof(wpa1_oui[0])*3)!=0) {
+            netinfo_wireless->wireless_scan_ap_encrpyt = WIRELESS_SCAN_AP_ENCRPTY_UNKNOWN;
+        } else {
+            netinfo_wireless->wireless_scan_ap_encrpyt = WIRELESS_SCAN_AP_ENCRPTY_WPA1;
+        }
+    break;
+    default:
+        netinfo_wireless->wireless_scan_ap_encrpyt = WIRELESS_SCAN_AP_ENCRPTY_UNKNOWN;
+    break;
+    }
+
+    if (netinfo_wireless->wireless_scan_ap_encrpty_status == WIRELESS_SCAN_AP_ENCRYPT_KEY_OFF) {
+        netinfo_wireless->wireless_scan_ap_encrpyt = WIRELESS_SCAN_AP_ENCRPTY_UNKNOWN;
+    }
+
+    return true;
+}
+
 /**
  * @brief Extract data of stream
  * 
@@ -29,8 +86,7 @@ static inline bool wireless_scan_extract_stream(struct _wirelss_scan_event *wire
         }
 
         memcpy(&(i_event.cmd), ptr_cur+sizeof(i_event.cmd), sizeof(i_event.cmd));
-        
-        if (i_event.cmd >= SIOCIWLASTPRIV) {
+        if (i_event.cmd >= IWEVPMKIDCAND || i_event.cmd <= SIOCSIWCOMMIT) {
             // Offset to next event
             ptr_cur+= i_event.len;
             continue;
@@ -38,7 +94,6 @@ static inline bool wireless_scan_extract_stream(struct _wirelss_scan_event *wire
 			memcpy(&(ptr_wirelss_scan_event->i_event.cmd), &(i_event.cmd), sizeof(i_event.cmd));
 			memcpy(&(ptr_wirelss_scan_event->i_event.len), &(i_event.len), sizeof(i_event.len));
 			memcpy(&(ptr_wirelss_scan_event->buf), ptr_cur+8, sizeof(ptr_cur[0]) * i_event.len-8);
-
 			ptr_wirelss_scan_event++;
         }
         
@@ -119,7 +174,25 @@ static inline bool wireless_scan_print_stream(struct _wireless_scan_netinfo *_wi
                 ptr_bitrate++;
             }
         break;
- 		
+        // WIFI connect quility
+        case IWEVQUAL:
+            ptr_netinfo_wireless->quility = ptr_wirelss_scan_event->buf[0];
+        break;
+        
+        // IE
+        case IWEVGENIE:
+            _gen_encrypt_decode(ptr_netinfo_wireless, ptr_wirelss_scan_event->buf, ptr_wirelss_scan_event->i_event.len);
+        break;
+        
+        case SIOCGIWENCODE:
+            memcpy(&(ptr_wirelss_scan_event->i_event.u.data.length), ptr_wirelss_scan_event->buf, 4);
+
+            if (ptr_wirelss_scan_event->i_event.u.data.flags & IW_ENCODE_DISABLED) {
+                ptr_netinfo_wireless->wireless_scan_ap_encrpty_status = WIRELESS_SCAN_AP_ENCRYPT_KEY_OFF;
+            } else {
+                ptr_netinfo_wireless->wireless_scan_ap_encrpty_status = WIRELESS_SCAN_AP_ENCRYPT_KEY_ON;
+            }
+        break; 
 		default:
 		break;
 		}
@@ -160,6 +233,7 @@ bool wireless_get_scan_result(struct _wireless_scan_netinfo *wireless_scan_netin
     // Send wireless scanning system call.
     ret = ioctl(fd, SIOCSIWSCAN, &iw_req);
     if (ret == -1) {
+        printf("SIOCSIWSCAN failed\n");
         return false;
     }
 

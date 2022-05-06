@@ -11,17 +11,21 @@ int main(int argc, char **argv)
     
     ptr_netinfo_interface = wireless_scan_netinfo.ptr_netinfo_interface_start;
     while (ptr_netinfo_interface < wireless_scan_netinfo.ptr_netinfo_interface_end) {
-        printf("ESSID: %s, AP_MAC_ADDRESS: %s, FREQENCY: %2.4e, CHANNEL: %d, ", ptr_netinfo_interface->essid, \
+        
+        printf("ESSID: %s, AP_MAC_ADDRESS: %s, FREQENCY: %2.4e, CHANNEL: %d, ENCRPTY: %d, STATUS: %d, ", ptr_netinfo_interface->essid, \
                                                                                 ptr_netinfo_interface->ap_mac_address, \
                                                                                 ptr_netinfo_interface->frequency,  \
-                                                                                ptr_netinfo_interface->channel);
-
+                                                                                ptr_netinfo_interface->channel, \
+                                                                                ptr_netinfo_interface->wireless_scan_ap_encrpyt, \
+                                                                                ptr_netinfo_interface->wireless_scan_ap_encrpty_status);
         printf("BITRATE:");
         for (int bitrate_idx = 0; bitrate_idx < ptr_netinfo_interface->bit_rate_len; bitrate_idx++) {
             printf("%d,", ptr_netinfo_interface->bit_rate_scanning[bitrate_idx]);
         }
         
-        printf("\n");                                                                               
+        printf("\n");
+        
+                                                                          
         ptr_netinfo_interface++;
     }
     return 0;

@@ -36,6 +36,19 @@ typedef enum {
     NETINFO_WIRELESS_MIX_MODE,
 } NETINFO_WIRELESS_MODE;
 
+typedef enum {
+	WIRELESS_SCAN_AP_ENCRPTY_UNKNOWN,
+	WIRELESS_SCAN_AP_ENCRPTY_WPA1,
+	WIRELESS_SCAN_AP_ENCRPTY_WPA2,
+} WIRELESS_SCAN_AP_ENCRYPT;
+
+typedef enum {
+	WIRELESS_SCAN_AP_ENCRYPT_KEY_OFF,
+	WIRELESS_SCAN_AP_ENCRYPT_KEY_ON,
+	WIRELESS_SCAN_AP_ENCRYPT_KEY_OPEN,
+	WIRELESS_SCAN_AP_ENCRYPT_KEY_RESTRICTED,
+} WIRELESS_SCAN_AP_ENCRYPT_STATUS;
+
 struct _netinfo_wireless {
     char essid[ESSID_LENGTH];
     float frequency; // hz
@@ -48,6 +61,8 @@ struct _netinfo_wireless {
     // For wireless scanning
     int bit_rate_scanning[SCAN_BITRATE_MAXIMUM_LENGTH];
     int bit_rate_len;
+    WIRELESS_SCAN_AP_ENCRYPT_STATUS wireless_scan_ap_encrpty_status;
+    WIRELESS_SCAN_AP_ENCRYPT wireless_scan_ap_encrpyt;
 };
 
 struct _netinfo_interface {
